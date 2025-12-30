@@ -20,6 +20,7 @@ class PreferencesRepository @Inject constructor(@ApplicationContext private val 
 
     private val CLICK_COUNT_KEY = intPreferencesKey("click_count")
     private val LAST_CLICK_DATE_KEY = stringPreferencesKey("last_click_date")
+    private val API_KEY = stringPreferencesKey("gemini_api_key")
 
     val clickCount: Flow<Int> = context.dataStore.data.map { preferences ->
         preferences[CLICK_COUNT_KEY] ?: 0
@@ -27,6 +28,16 @@ class PreferencesRepository @Inject constructor(@ApplicationContext private val 
 
     val lastClickDate: Flow<String?> = context.dataStore.data.map { preferences ->
         preferences[LAST_CLICK_DATE_KEY]
+    }
+    
+    val apiKey: Flow<String?> = context.dataStore.data.map { preferences ->
+        preferences[API_KEY]
+    }
+
+    suspend fun saveApiKey(key: String) {
+        context.dataStore.edit { preferences ->
+            preferences[API_KEY] = key
+        }
     }
 
     suspend fun incrementClickCount() {

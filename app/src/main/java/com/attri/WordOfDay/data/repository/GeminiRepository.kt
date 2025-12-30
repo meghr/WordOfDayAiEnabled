@@ -9,13 +9,23 @@ import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 class GeminiRepository @Inject constructor(
-    private val generativeModel: GenerativeModel,
-    private val wordDao: WordDao
+    private val wordDao: WordDao,
+    private val preferencesRepository: PreferencesRepository
 ) {
 
     private val json = Json { ignoreUnknownKeys = true }
 
     suspend fun fetchNewWordFromAI(): Result<WordOfTheDay> {
+        val apiKey = preferencesRepository.apiKey.first()
+        if (apiKey.isNullOrBlank()) {
+            return Result.failure(Exception("API Key not found. Please set it in the app settings."))
+        }
+
+        val generativeModel = GenerativeModel(
+            modelName = "gemini-2.5-flash",
+            apiKey = apiKey
+        )
+
         return try {
             // Fetch past words to avoid repetition
             val pastWords = wordDao.getAllWords().first().joinToString(", ") { it.word }
