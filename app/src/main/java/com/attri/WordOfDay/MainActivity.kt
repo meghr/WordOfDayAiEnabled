@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -24,6 +25,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.attri.WordOfDay.presentation.history.HistoryScreen
 import com.attri.WordOfDay.presentation.home.HomeScreen
+import com.attri.WordOfDay.presentation.settings.SettingsScreen
 import com.attri.WordOfDay.ui.theme.WordOfDayTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -45,7 +47,8 @@ fun MainScreen() {
     val navController = rememberNavController()
     val items = listOf(
         Screen.Home,
-        Screen.History
+        Screen.History,
+        Screen.Settings
     )
 
     Scaffold(
@@ -79,6 +82,7 @@ fun MainScreen() {
         ) {
             composable(Screen.Home.route) { HomeScreen() }
             composable(Screen.History.route) { HistoryScreen() }
+            composable(Screen.Settings.route) { SettingsScreen() }
         }
     }
 }
@@ -86,4 +90,5 @@ fun MainScreen() {
 sealed class Screen(val route: String, val icon: androidx.compose.ui.graphics.vector.ImageVector) {
     object Home : Screen("Home", Icons.Filled.Home)
     object History : Screen("History", Icons.Filled.List)
+    object Settings : Screen("Settings", Icons.Filled.Settings)
 }

@@ -32,6 +32,26 @@ class HomeViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Idle)
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
+    private val _remainingCount = MutableStateFlow<Int>(30)
+    val remainingCount: StateFlow<Int> = _remainingCount.asStateFlow()
+
+    init {
+        updateRemainingCount()
+    }
+
+    private fun updateRemainingCount() {
+        viewModelScope.launch {
+            val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+            val lastDate = preferencesRepository.lastClickDate.first()
+            var currentCount = preferencesRepository.clickCount.first()
+
+            if (lastDate != today) {
+                currentCount = 0
+            }
+            _remainingCount.value = (30 - currentCount).coerceAtLeast(0)
+        }
+    }
+
     fun fetchNewWord() {
         viewModelScope.launch {
             val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
@@ -44,8 +64,9 @@ class HomeViewModel @Inject constructor(
                 currentCount = 0
             }
 
-            if (currentCount >= 5) {
-                _uiState.value = HomeUiState.Error("Daily limit of 5 words reached. Come back tomorrow!")
+            if (currentCount >= 30) {
+                _uiState.value = HomeUiState.Error("Daily limit of 30 words reached. Come back tomorrow!")
+                _remainingCount.value = 0
                 return@launch
             }
 
@@ -55,6 +76,9 @@ class HomeViewModel @Inject constructor(
             // Increment count immediately to prevent spamming
             preferencesRepository.incrementClickCount()
             preferencesRepository.updateLastClickDate(today)
+            
+            // Update remaining count UI
+            _remainingCount.value = (30 - (currentCount + 1)).coerceAtLeast(0)
 
             val result = repository.fetchNewWordFromAI()
             

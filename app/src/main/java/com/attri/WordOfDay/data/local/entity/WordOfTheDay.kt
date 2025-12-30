@@ -13,13 +13,17 @@ data class WordOfTheDay(
     val word: String,
     @SerialName("hindi_meaning")
     val hindiMeaning: String,
-    val definition: String = "", // Provide default value
-    val synonym: String = "", // Provide default value
-    val antonym: String = "", // Provide default value
-    val sentences: List<String> = emptyList(), // Provide default value
+    val definition: String = "", 
+    val synonym: String = "", 
+    val antonym: String = "", 
+    val sentences: List<String> = emptyList(), 
     @SerialName("synonym_sentences")
-    val synonymSentences: List<String> = emptyList(), // Provide default value
+    val synonymSentences: List<String> = emptyList(), 
     @SerialName("antonym_sentences")
-    val antonymSentences: List<String> = emptyList(), // Provide default value
+    val antonymSentences: List<String> = emptyList(),
+    @SerialName("marathi_meaning")
+    val marathiMeaning: String = "",
+    @SerialName("marathi_sentences")
+    val marathiSentences: List<String> = emptyList(),
     val dateFetched: Long = System.currentTimeMillis()
 )

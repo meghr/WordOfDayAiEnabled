@@ -34,6 +34,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val remainingCount by viewModel.remainingCount.collectAsState() // Observe remaining count
     val context = LocalContext.current
     
     // Initialize TTS Manager
@@ -59,12 +60,19 @@ fun HomeScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "VocabDaily",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
+            Column {
+                Text(
+                    text = "VocabDaily",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "Daily Limit: $remainingCount left",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
 
             if (uiState is HomeUiState.Success) {
                 IconButton(
@@ -128,7 +136,7 @@ fun HomeScreen(
                 .fillMaxWidth()
                 .height(56.dp),
             shape = RoundedCornerShape(16.dp),
-            enabled = uiState !is HomeUiState.Loading
+            enabled = uiState !is HomeUiState.Loading && remainingCount > 0
         ) {
             if (uiState is HomeUiState.Loading) {
                 CircularProgressIndicator(
@@ -139,7 +147,11 @@ fun HomeScreen(
             } else {
                 Icon(Icons.Default.Refresh, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Learn New Word")
+                if (remainingCount > 0) {
+                    Text("Learn New Word ($remainingCount left)")
+                } else {
+                    Text("Daily Limit Reached")
+                }
             }
         }
     }
@@ -195,10 +207,18 @@ fun WordCardContent(
 
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = wordOfTheDay.hindiMeaning,
+                        text = "Hindi: ${wordOfTheDay.hindiMeaning}",
                         style = MaterialTheme.typography.headlineSmall,
                         color = Color(0xFF009688) // Teal Color
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    if (wordOfTheDay.marathiMeaning.isNotEmpty()) {
+                        Text(
+                            text = "Marathi: ${wordOfTheDay.marathiMeaning}",
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = Color(0xFF673AB7) // Deep Purple (nicer than Pink)
+                        )
+                    }
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = wordOfTheDay.definition,
@@ -225,6 +245,28 @@ fun WordCardContent(
                             Text(sentence, style = MaterialTheme.typography.bodyMedium)
                         }
                         Spacer(modifier = Modifier.height(4.dp))
+                    }
+                }
+            }
+        }
+
+        if (wordOfTheDay.marathiSentences.isNotEmpty()) {
+            item {
+                SectionTitle("Marathi Sentences")
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        wordOfTheDay.marathiSentences.forEach { sentence ->
+                            Row(
+                                verticalAlignment = Alignment.Top
+                            ) {
+                                Text("• ", style = MaterialTheme.typography.bodyMedium)
+                                Text(sentence, style = MaterialTheme.typography.bodyMedium)
+                            }
+                            Spacer(modifier = Modifier.height(4.dp))
+                        }
                     }
                 }
             }
